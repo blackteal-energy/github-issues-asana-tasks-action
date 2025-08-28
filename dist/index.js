@@ -58331,6 +58331,11 @@ try {
   // TODO: GET THE PROJECT_ID
   //
   // const projectId = "1206848227995333";
+  
+  // Debug: Log the issue body to see what we're working with
+  console.log("Issue body:", payload.issue?.body);
+  console.log("Issue body type:", typeof payload.issue?.body);
+  
   const projectId = (0,_lib_util_project_id_from_url_js__WEBPACK_IMPORTED_MODULE_6__/* .getProjectId */ .f)(payload.issue?.body);
 
   // TODO: GET THE SEARCH STRING (html_url)
@@ -58343,7 +58348,7 @@ try {
   // const TOKEN = process.env.TOKEN;
   // process.env.TOKEN = process.env.ASANA_PAT;    // this won't work because the connections have already been set up and the env var was missing
   // const payload = JSON.stringify(github.context.payload, null, 2);
-  console.log({ projectId, eventName, action });
+  console.log({ projectId, eventName, action, issueSearchString });
   // const payload_str = JSON.stringify(payload, null, 2);
   // console.log(`The '${eventName}' event payload: ${payload_str}`);
   // console.log({ TOKEN });
@@ -74615,16 +74620,36 @@ function renderMarkdown(rawMd) {
  * Extracts Project GIDs from Asana Project Links (permalink_url)
  *
  * @link https://developers.asana.com/reference/projects
- * @example getProjectId("https://app.asana.com/0/12345678900/12345678900")
+ * @example getProjectId("https://app.asana.com/0/12345678900/12345678900") // Legacy format
+ * @example getProjectId("https://app.asana.com/1/1202191738631953/project/1211168999004702/list/1211170139684016") // New format
  * @param {string | URL } projectLink from Asana's "Copy Project Link"
  * @returns {string | false} Returns the project Id as a numeric string.
  */
 function getProjectId(projectLink = "") {
-  const projectPattern = new RegExp("https://app.asana.com/0/(\\d+)/\\1");
   projectLink = projectLink.toString();
 
-  const match = projectLink.match(projectPattern);
-  return match ? match[1] : false;
+  // Debug: Log what we're trying to parse
+  console.log("getProjectId input:", projectLink);
+  console.log("getProjectId input length:", projectLink.length);
+
+  // New format: https://app.asana.com/1/{workspace_id}/project/{project_id}/list/{list_id}
+  const newFormatPattern = new RegExp("https://app.asana.com/1/\\d+/project/(\\d+)");
+  const newMatch = projectLink.match(newFormatPattern);
+  if (newMatch) {
+    console.log("Found new format match:", newMatch[1]);
+    return newMatch[1];
+  }
+
+  // Legacy format: https://app.asana.com/0/{project_id}/{project_id}
+  const legacyPattern = new RegExp("https://app.asana.com/0/(\\d+)/\\1");
+  const legacyMatch = projectLink.match(legacyPattern);
+  if (legacyMatch) {
+    console.log("Found legacy format match:", legacyMatch[1]);
+    return legacyMatch[1];
+  }
+
+  console.log("No Asana project link found");
+  return false;
 }
 
 
