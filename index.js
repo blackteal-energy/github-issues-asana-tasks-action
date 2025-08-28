@@ -23,6 +23,11 @@ try {
   // TODO: GET THE PROJECT_ID
   //
   // const projectId = "1206848227995333";
+  
+  // Debug: Log the issue body to see what we're working with
+  console.log("Issue body:", payload.issue?.body);
+  console.log("Issue body type:", typeof payload.issue?.body);
+  
   const projectId = getProjectId(payload.issue?.body);
 
   // TODO: GET THE SEARCH STRING (html_url)
@@ -35,7 +40,7 @@ try {
   // const TOKEN = process.env.TOKEN;
   // process.env.TOKEN = process.env.ASANA_PAT;    // this won't work because the connections have already been set up and the env var was missing
   // const payload = JSON.stringify(github.context.payload, null, 2);
-  console.log({ projectId, eventName, action });
+  console.log({ projectId, eventName, action, issueSearchString });
   // const payload_str = JSON.stringify(payload, null, 2);
   // console.log(`The '${eventName}' event payload: ${payload_str}`);
   // console.log({ TOKEN });
